@@ -30,16 +30,19 @@ enum SpecialRoundType
     SRT_BombKing,
     SRT_TowerDefense,
     SRT_MannPower,
-
+    SRT_Survival,
 };
 
 SpecialRoundType g_VSPState = SRT_Disabled;
 Handle g_hHUDText;
 int g_iBomgKingUserid;
-FwdTime g_BomgKingTime;
+FwdTime g_fwdBomgKingTime;
+FwdTime g_fwdSurvivalTime;
+bool g_bSurvivalEnabled;
 
 #include "vsr/dome.sp"
 #include "vsr/mannpower.sp"
+#include "vsr/survival.sp"
 
 public void OnPluginStart()
 {
@@ -102,6 +105,11 @@ void VSR_OnRoundEndInfo(const VSH2Player player, bool bossBool, char message[MAX
         {
             GameRules_SetProp("m_bPowerupMode", 0);
             FindConVar("tf_grapplinghook_enable").SetInt(0);
+        }
+
+        case SRT_Survival:
+        {
+            g_bSurvivalEnabled = false;
         }
     }
     
@@ -245,6 +253,15 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
 
             CPrintToChatAll("{purple}[特殊回合]{default}获得钩爪，地图生成增益道具。注意，重生点内的增益道具无法捡起。");
         }
+
+        case SRT_Survival:
+        {
+            float time = 25.0 * float(red_count);
+            g_fwdSurvivalTime.Update(time);
+            g_bSurvivalEnabled = true;
+
+            CPrintToChatAll("{purple}[特殊回合]{default}BOSS的愤怒值会自行增加，红队生存指定时间之后即可胜利。");
+        }
     }
 }
 
@@ -289,15 +306,38 @@ void VSR_OnBossThinkPost(VSH2Player player)
                 return;
             }
             
-            if ( g_BomgKingTime.WithinTime() )
+            if ( g_fwdBomgKingTime.WithinTime() )
             {
                 SetHudTextParams(-1.0, 0.58, 0.11, 255, 0, 0, 255);
-                ShowSyncHudText(client, g_hHUDText, "%.1f秒\n你身上有炸弹！近战攻击任何人来传递炸弹！", g_BomgKingTime.Elapsed());
+                ShowSyncHudText(client, g_hHUDText, "%.1f秒\n你身上有炸弹！近战攻击任何人来传递炸弹！", g_fwdBomgKingTime.Elapsed());
             }   else    {
                 g_iBomgKingUserid = -1;
                 float pos[3];   GetClientAbsOrigin(client, pos);
                 DoExplosion(client, 700, 100, pos);
                 StopSound(client, SNDCHAN_AUTO, "mvm/sentrybuster/mvm_sentrybuster_loop.wav");
+            }
+        }
+
+        case SRT_Survival:
+        {
+            SetHudTextParams(-1.0, 0.2, 0.11, 255, 255, 255, 255);
+            if (g_bSurvivalEnabled)
+            {
+                for(int i = 1; i <= MaxClients; i++)
+                {
+                    if ( IsClientInGame(i) )
+                    {
+                        ShowSyncHudText(i, g_hHUDText, "生存模式：%.0f秒", g_fwdSurvivalTime.Elapsed());
+                    }
+                }
+
+                if (!g_fwdSurvivalTime.WithinTime())
+                {
+                    ForceTeamWin(VSH2Team_Red);
+                    g_bSurvivalEnabled = false;
+                }   else    {
+                    player.SetPropFloat("flRAGE", player.GetPropFloat("flRAGE") + 0.02);
+                }
             }
         }
     }
@@ -311,11 +351,11 @@ void VSR_OnTraceAttack(const VSH2Player victim, const VSH2Player attacker, int& 
         {
             if (g_iBomgKingUserid == -1) return;
 
-            if ( attacker.userid == g_iBomgKingUserid && g_BomgKingTime.WithinTime() && IsWeaponSlotActive(attacker.index, TFWeaponSlot_Melee) )
+            if ( attacker.userid == g_iBomgKingUserid && g_fwdBomgKingTime.WithinTime() && IsWeaponSlotActive(attacker.index, TFWeaponSlot_Melee) )
             {
                 g_iBomgKingUserid = victim.userid;
-                if ( g_BomgKingTime.Elapsed() < 5.0 )  {
-                    g_BomgKingTime.Update(5.0);
+                if ( g_fwdBomgKingTime.Elapsed() < 5.0 )  {
+                    g_fwdBomgKingTime.Update(5.0);
                 }
                 StopSound(attacker.index, SNDCHAN_AUTO, "mvm/sentrybuster/mvm_sentrybuster_loop.wav");
                 EmitSoundToClient(victim.index, "mvm/sentrybuster/mvm_sentrybuster_intro.wav");
@@ -387,7 +427,7 @@ Action BombKing(Handle timer)
 
     int client = GetRandomClient(true, VSH2Team_Red);
     g_iBomgKingUserid = GetClientUserId(client);
-    g_BomgKingTime.Update(25.0);
+    g_fwdBomgKingTime.Update(25.0);
     EmitSoundToClient(client, "mvm/sentrybuster/mvm_sentrybuster_intro.wav");
     EmitSoundToClient(client, "mvm/sentrybuster/mvm_sentrybuster_loop.wav");
 
