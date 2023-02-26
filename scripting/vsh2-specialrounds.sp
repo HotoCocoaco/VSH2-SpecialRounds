@@ -17,6 +17,11 @@ public Plugin myinfo = {
     AcceptEntityInput(%1, "AddOutput"); \
     AcceptEntityInput(%1, "FireUser1");
 
+#define VSR_ROLLSOUND "evz/bonusround.wav"
+
+ConVar g_convarSpecialRoundRate;
+ConfigMap g_cfgVSRConfig;
+
 enum SpecialRoundType 
 {
     SRT_Disabled = -1,
@@ -31,6 +36,8 @@ enum SpecialRoundType
     SRT_TowerDefense,
     SRT_MannPower,
     SRT_Survival,
+
+    SRT_MaxSRTCount
 };
 
 SpecialRoundType g_VSPState = SRT_Disabled;
@@ -42,10 +49,10 @@ bool g_bSurvivalEnabled;
 
 #include "vsr/dome.sp"
 #include "vsr/mannpower.sp"
-#include "vsr/survival.sp"
 
 public void OnPluginStart()
 {
+    g_convarSpecialRoundRate = CreateConVar("sm_vsr_rate", "0", "开始特殊回合所需的概率，x/100计算。");
     g_hHUDText = CreateHudSynchronizer();
     RegAdminCmd("sm_setvsp", SetVSPState, ADMFLAG_CHEATS, "ChangeVSPState");
     MannPower_OnPluginStart();
@@ -75,12 +82,20 @@ public void OnLibraryAdded(const char[] name)
 {
     if (StrEqual(name, "VSH2"))
     {
+        g_cfgVSRConfig = new ConfigMap("configs/saxton_hale/vsh2_vsr.cfg");
+        if (g_cfgVSRConfig == null)
+        {
+            LogError("[VSH2-VSR] ERROR: couldn't find configs/saxton_hale/vsh2_vsr.cfg");
+            return;
+        }
+        
         VSH2_Hook(OnRoundEndInfo, VSR_OnRoundEndInfo);
         VSH2_Hook(OnRoundStart, VSR_OnRoundStart);
         VSH2_Hook(OnCallDownloads, VSR_OnCallDownloads);
         VSH2_Hook(OnTraceAttack, VSR_OnTraceAttack);
         VSH2_Hook(OnBossThinkPost, VSR_OnBossThinkPost);
         VSH2_Hook(OnSoundHook, VSR_OnSoundHook);
+        VSH2_Hook(OnBossPlayIntro, VSR_OnBossPlayIntro);
     }
 }
 
@@ -94,7 +109,213 @@ public void OnLibraryRemoved(const char[] name)
         VSH2_Unhook(OnTraceAttack, VSR_OnTraceAttack);
         VSH2_Unhook(OnBossThinkPost, VSR_OnBossThinkPost);
         VSH2_Unhook(OnSoundHook, VSR_OnSoundHook);
+        VSH2_Unhook(OnBossPlayIntro, VSR_OnBossPlayIntro);
     }
+}
+
+void VSR_OnBossPlayIntro(const VSH2Player player)
+{
+    int rate = g_convarSpecialRoundRate.IntValue;
+    int number = GetRandomInt(0, 100);
+    if (number < rate)
+    {
+        // 搞一个抽奖特效文字。
+        CreateTimer(0.1, ShowVSPRollText, _, TIMER_REPEAT);
+        EmitSoundToAll(VSR_ROLLSOUND);
+        int type = GetRandomInt(0, view_as<int>(SRT_MaxSRTCount)-1);
+        g_VSPState = view_as<SpecialRoundType>(type);
+    }
+}
+
+Action ShowVSPRollText(Handle timer)
+{
+    static int times;
+
+    if (times >= 30)
+    {
+        times = 0;
+
+        SetHudTextParams(-1.0, 0.4, 5.0, GetRandomInt(0, 255), GetRandomInt(0, 255), GetRandomInt(0, 255), 255);
+
+        switch(g_VSPState)
+        {
+            case SRT_BigHead:
+            {
+                int len = g_cfgVSRConfig.GetSize("vsr.bighead");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.bighead", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
+
+            case SRT_SmallHead:
+            {
+                int len = g_cfgVSRConfig.GetSize("vsr.smallhead");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.smallhead", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
+
+            case SRT_RandomClass:
+            {
+                int len = g_cfgVSRConfig.GetSize("vsr.randomclass");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.randomclass", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
+
+            case SRT_RandomToOneClass:
+            {
+                int len = g_cfgVSRConfig.GetSize("vsr.randomtooneclass");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.randomtooneclass", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
+
+            case SRT_Jesus:
+            {
+                int len = g_cfgVSRConfig.GetSize("vsr.theone");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.theone", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
+
+            case SRT_Hammer:
+            {
+                int len = g_cfgVSRConfig.GetSize("vsr.hammertime");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.hammertime", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
+
+            case SRT_BattleRoyale:
+            {
+                int len = g_cfgVSRConfig.GetSize("vsr.battleroyale");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.battleroyale", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
+
+            case SRT_BombKing:
+            {
+                int len = g_cfgVSRConfig.GetSize("vsr.bombking");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.bombking", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
+
+            case SRT_TowerDefense:
+            {
+                int len = g_cfgVSRConfig.GetSize("vsr.towerdefense");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.towerdefense", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
+
+            case SRT_MannPower:
+            {
+                int len = g_cfgVSRConfig.GetSize("vsr.mannpower");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.mannpower", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
+
+            case SRT_Survival:
+            {
+                int len = g_cfgVSRConfig.GetSize("vsr.survival");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.survival", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
+        }
+        return Plugin_Stop;
+    }
+
+    ConfigMap randomtext = g_cfgVSRConfig.GetSection("vsr.randomtext");
+    int size = randomtext.Size;
+    int i = GetRandomInt(0, size);
+    int len = randomtext.GetIntKeySize(i);
+    char[] str = new char[len];
+    SetHudTextParams(-1.0, 0.4, 0.2, GetRandomInt(0, 255), GetRandomInt(0, 255), GetRandomInt(0, 255), 255);
+    if ( randomtext.GetIntKey(i, str, len) )
+    {
+        for(i = 1; i <= MaxClients; i++)
+        {
+            if (IsClientInGame(i))
+            {
+                ShowSyncHudText(i, g_hHUDText, "%s", str);
+            }
+        }
+    }
+
+    times++;
+
+    return Plugin_Continue;
 }
 
 void VSR_OnRoundEndInfo(const VSH2Player player, bool bossBool, char message[MAXMESSAGE])
@@ -194,9 +415,9 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
             int theone = GetRandomInt(0, red_count);
             int client = red_players[theone].index;
             TF2_SetPlayerPowerPlay(client, true);
-            SetPawnTimer(ResetPowerPlay, 240.0, EntIndexToEntRef(client));
+            SetPawnTimer(ResetPowerPlay, 180.0, EntIndexToEntRef(client));
 
-            CPrintToChatAll("{purple}[特殊回合]{default}红队获得一个救世主，");
+            CPrintToChatAll("{purple}[特殊回合]{default}红队获得一个救世主，持续时间180秒。");
         }
 
         case SRT_Hammer:
@@ -261,6 +482,7 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
         case SRT_Survival:
         {
             float time = 25.0 * float(red_count);
+            if (time < 240.0)   time = 240.0;
             g_fwdSurvivalTime.Update(time);
             g_bSurvivalEnabled = true;
 
@@ -283,6 +505,8 @@ void VSR_OnCallDownloads()
 
     PrecacheSound("mvm/sentrybuster/mvm_sentrybuster_intro.wav");
     PrecacheSound("mvm/sentrybuster/mvm_sentrybuster_loop.wav");
+
+    PrepareSound(VSR_ROLLSOUND);
 
     Dome_MapStart();
 }

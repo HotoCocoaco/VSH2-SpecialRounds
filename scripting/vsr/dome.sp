@@ -23,7 +23,7 @@ bool g_bDomePlayerOutside[MAXPLAYERS+1];
 Handle g_hDomeTimerBleed = null;
 
 StaticTime g_staticDomeStartTime;
-StaticTime g_staticDomePlayerTime[MAXPLAYERS+1];
+float g_fPlayerOutDomeTime[MAXPLAYERS+1];
 
 void Dome_MapStart()
 {
@@ -45,6 +45,7 @@ void Dome_OnRoundStart()
     for(int i = 1; i <= MaxClients; i++)
     {
         g_bDomePlayerOutside[i] = false
+        g_fPlayerOutDomeTime[i] = 0.0;
     }
 
     int CPm = -1;
@@ -172,7 +173,7 @@ void Dome_Frame_Shrink()
                 g_bDomePlayerOutside[iClient] = true;
 
                 //Add time on how long player have been outside of dome
-                g_staticDomePlayerTime[iClient].Update();
+                g_fPlayerOutDomeTime[iClient] += g_staticDomeStartTime.Elapsed();
 
                 //give bleed if havent been given one
                 if (!TF2_IsPlayerInCondition(iClient, TFCond_Bleeding))
@@ -239,7 +240,7 @@ Action Dome_TimerBleed(Handle hTimer)
                 else
                 {
                     //Calculate damage, the longer the player is outside of the dome, the more damage it deals
-                    flDamage = Pow(2.0, g_staticDomePlayerTime[iClient].Elapsed());
+                    flDamage = Pow(2.0, g_fPlayerOutDomeTime[iClient]);
                 }
 
                 if (flDamage < 1.0) flDamage = 1.0;
