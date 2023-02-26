@@ -223,12 +223,16 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
             target = GetRandomClient(true, VSH2Team_Boss);
             float pos[3];   GetClientAbsOrigin(target, pos);
             float ang[3];   GetClientAbsAngles(target, ang);
-            SpawnSentry(target, pos, ang, 3, false, false, 8);
+            int sentry = SpawnSentry(target, pos, ang, 3, false, false, 8);
+            SetVariantInt(1200);
+            AcceptEntityInput(sentry, "SetHealth");
 
             target = GetRandomClient(true, VSH2Team_Red);
             GetClientAbsOrigin(target, pos);
             GetClientAbsAngles(target, ang);
-            SpawnSentry(target, pos, ang, 3, false, false, 8);
+            sentry = SpawnSentry(target, pos, ang, 3, false, false, 8);
+            SetVariantInt(500);
+            AcceptEntityInput(sentry, "SetHealth");
             
             CPrintToChatAll("{purple}[特殊回合]{default}红蓝队重生点获得一个步哨枪。");
         }
