@@ -29,6 +29,8 @@ enum SpecialRoundType
     SRT_BattleRoyale,
     SRT_BombKing,
     SRT_TowerDefense,
+    SRT_MannPower,
+
 };
 
 SpecialRoundType g_VSPState = SRT_Disabled;
@@ -37,11 +39,13 @@ int g_iBomgKingUserid;
 FwdTime g_BomgKingTime;
 
 #include "vsr/dome.sp"
+#include "vsr/mannpower.sp"
 
 public void OnPluginStart()
 {
     g_hHUDText = CreateHudSynchronizer();
     RegAdminCmd("sm_setvsp", SetVSPState, ADMFLAG_CHEATS, "ChangeVSPState");
+    MannPower_OnPluginStart();
 }
 
 Action SetVSPState(int client, int args)
@@ -92,6 +96,15 @@ public void OnLibraryRemoved(const char[] name)
 
 void VSR_OnRoundEndInfo(const VSH2Player player, bool bossBool, char message[MAXMESSAGE])
 {
+    switch(g_VSPState)
+    {
+        case SRT_MannPower:
+        {
+            GameRules_SetProp("m_bPowerupMode", 0);
+            FindConVar("tf_grapplinghook_enable").SetInt(0);
+        }
+    }
+    
     g_VSPState = SRT_Disabled;
 }
 
@@ -210,6 +223,27 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
             SpawnSentry(target, pos, ang, 3, false, false, 8);
             
             CPrintToChatAll("{purple}[特殊回合]{default}红蓝队重生点获得一个步哨枪。");
+        }
+
+        case SRT_MannPower:
+        {
+            FindConVar("tf_grapplinghook_enable").SetInt(1);
+            GameRules_SetProp("m_bPowerupMode", 1);
+
+            int i;
+            for(i = 0; i < boss_count; i++)
+            {
+                bosses[i].SpawnWeapon("tf_weapon_grapplinghook", 1152, 1, 10, "241 ; 0 ; 280 ; 26 ; 712 ; 1");
+            }
+            for(i = 0; i < red_count; i++)
+            {
+                TF2_RemoveWeaponSlot(red_players[i].index, 6);
+                red_players[i].SpawnWeapon("tf_weapon_grapplinghook", 1152, 1, 10, "241 ; 0 ; 280 ; 26 ; 712 ; 1");
+            }
+
+            MannPower_OnRoundStart();
+
+            CPrintToChatAll("{purple}[特殊回合]{default}获得钩爪，地图生成增益道具。注意，重生点内的增益道具无法捡起。");
         }
     }
 }
