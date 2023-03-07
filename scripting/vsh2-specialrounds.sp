@@ -17,7 +17,7 @@ public Plugin myinfo = {
     AcceptEntityInput(%1, "AddOutput"); \
     AcceptEntityInput(%1, "FireUser1");
 
-#define VSR_ROLLSOUND "evz/bonusround.wav"
+#define VSR_ROLLSOUND "misc/ks_tier_03.wav"
 
 ConVar g_convarSpecialRoundRate;
 ConfigMap g_cfgVSRConfig;
@@ -587,7 +587,6 @@ void VSR_OnTraceAttack(const VSH2Player victim, const VSH2Player attacker, int& 
                 }
                 StopSound(attacker.index, SNDCHAN_AUTO, "mvm/sentrybuster/mvm_sentrybuster_loop.wav");
                 EmitSoundToClient(victim.index, "mvm/sentrybuster/mvm_sentrybuster_intro.wav");
-                EmitSoundToClient(victim.index, "mvm/sentrybuster/mvm_sentrybuster_loop.wav");
             }
         }
     }
@@ -657,7 +656,6 @@ Action BombKing(Handle timer)
     g_iBomgKingUserid = GetClientUserId(client);
     g_fwdBomgKingTime.Update(25.0);
     EmitSoundToClient(client, "mvm/sentrybuster/mvm_sentrybuster_intro.wav");
-    EmitSoundToClient(client, "mvm/sentrybuster/mvm_sentrybuster_loop.wav");
 
     return Plugin_Continue;
 }
