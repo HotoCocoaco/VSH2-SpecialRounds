@@ -385,7 +385,9 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
             {
                 for(int i = 0; i < red_count; i++)
                 {
-                    TF2_SetPlayerClass(red_players[i].index, view_as<TFClassType>(GetRandomInt(1, 9)), false);
+                    TFClassType class = view_as<TFClassType>(GetRandomInt(1, 9));
+                    TF2_SetPlayerClass(red_players[i].index, class, true, false);
+                    TF2_RegeneratePlayer(red_players[i].index);
                 }
 
                 CPrintToChatAll("{purple}[特殊回合]{default}每个人随机抽选新的兵种。");
@@ -403,7 +405,8 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
                 TFClassType class = view_as<TFClassType>(GetRandomInt(1, 9));
                 for(int i = 0; i < red_count; i++)
                 {
-                    TF2_SetPlayerClass(red_players[i].index, class, false);
+                    TF2_SetPlayerClass(red_players[i].index, class, true, false);
+                    TF2_RegeneratePlayer(red_players[i].index);
                 }
 
                 CPrintToChatAll("{purple}[特殊回合]{default}所有人变成随机的一个兵种。");
