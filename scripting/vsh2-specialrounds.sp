@@ -58,6 +58,17 @@ public void OnPluginStart()
     MannPower_OnPluginStart();
 }
 
+public void OnEntityCreated(int entity, const char[] classname)
+{
+    if ( StrContains(classname, "rune") != -1 )
+    {
+        if (g_VSPState != SRT_MannPower)
+        {
+            CreateTimer(0.1, RemoveEnt, EntIndexToEntRef(entity));
+        }
+    }
+}
+
 Action SetVSPState(int client, int args)
 {
     if (VSH2GameMode.GetPropInt("iRoundState") == StateRunning)
