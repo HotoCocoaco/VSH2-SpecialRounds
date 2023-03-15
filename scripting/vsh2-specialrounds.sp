@@ -428,8 +428,8 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
         {
             int theone = GetRandomInt(0, red_count);
             int client = red_players[theone].index;
-            TF2_SetPlayerPowerPlay(client, true);
-            SetPawnTimer(ResetPowerPlay, 180.0, EntIndexToEntRef(client));
+            TF2_AddCondition(client, TFCond_UberchargedCanteen, 180.0, client);
+            TF2_AddCondition(client, TFCond_CritCanteen, 180.0, client);
 
             CPrintToChatAll("{purple}[特殊回合]{default}红队获得一个救世主，持续时间180秒。");
         }
@@ -631,15 +631,6 @@ void VSR_OnSoundHook(const VSH2Player player, char sample[PLATFORM_MAX_PATH], in
                 }
             }
         }
-    }
-}
-
-void ResetPowerPlay(int ref)
-{
-    int client = EntRefToEntIndex(ref);
-    if ( client != INVALID_ENT_REFERENCE )
-    {
-        TF2_SetPlayerPowerPlay(client, false);
     }
 }
 
