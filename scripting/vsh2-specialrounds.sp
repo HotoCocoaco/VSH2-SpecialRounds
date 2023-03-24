@@ -531,6 +531,36 @@ void VSR_OnBossThinkPost(VSH2Player player)
 
     switch(g_VSPState)
     {        
+        case SRT_BigHead:
+        {
+            int i;
+            for(i = 0; i < boss_count; i++)
+            {
+                SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHeadScale", 2.5);
+                SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHandScale", 0.5);
+            }
+            for(i = 0; i < red_count; i++)
+            {
+                SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHeadScale", 2.5);
+                SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHandScale", 0.5);
+            }
+        }
+        
+        case SRT_SmallHead:
+        {
+            int i;
+            for(i = 0; i < boss_count; i++)
+            {
+                SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHeadScale", 0.5);
+                SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHandScale", 2.5);
+            }
+            for(i = 0; i < red_count; i++)
+            {
+                SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHeadScale", 0.5);
+                SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHandScale", 2.5);
+            }
+        }
+        
         case SRT_BombKing:
         {
             if (g_iBomgKingUserid == -1) return;
