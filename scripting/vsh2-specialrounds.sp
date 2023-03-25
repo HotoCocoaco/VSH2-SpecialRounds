@@ -534,30 +534,52 @@ void VSR_OnBossThinkPost(VSH2Player player)
         case SRT_BigHead:
         {
             int i;
-            for(i = 0; i < boss_count; i++)
+            int boss_count = VSH2GameMode_CountBosses(true);
+            VSH2Player[] bosses = new VSH2Player[boss_count];
+            if ( VSH2GameMode_GetBosses(bosses, true) )
             {
-                SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHeadScale", 2.5);
-                SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHandScale", 0.5);
+                for(i = 0; i < boss_count; i++)
+                {
+                    SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHeadScale", 2.5);
+                    SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHandScale", 0.5);
+                }
             }
-            for(i = 0; i < red_count; i++)
+
+            int red_count = GetLivingPlayers(VSH2Team_Red);
+            VSH2Player[] red_players = new VSH2Player[red_count];
+            if ( VSH2GameMode_GetFighters(red_players, true) )
             {
-                SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHeadScale", 2.5);
-                SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHandScale", 0.5);
+                for(i = 0; i < red_count; i++)
+                {
+                    SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHeadScale", 2.5);
+                    SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHandScale", 0.5);
+                }
             }
         }
         
         case SRT_SmallHead:
         {
             int i;
-            for(i = 0; i < boss_count; i++)
+            int boss_count = VSH2GameMode_CountBosses(true);
+            VSH2Player[] bosses = new VSH2Player[boss_count];
+            if ( VSH2GameMode_GetBosses(bosses, true) )
             {
-                SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHeadScale", 0.5);
-                SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHandScale", 2.5);
+                for(i = 0; i < boss_count; i++)
+                {
+                    SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHeadScale", 0.5);
+                    SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHandScale", 2.5);
+                }
             }
-            for(i = 0; i < red_count; i++)
+
+            int red_count = GetLivingPlayers(VSH2Team_Red);
+            VSH2Player[] red_players = new VSH2Player[red_count];
+            if ( VSH2GameMode_GetFighters(red_players, true) )
             {
-                SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHeadScale", 0.5);
-                SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHandScale", 2.5);
+                for(i = 0; i < red_count; i++)
+                {
+                    SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHeadScale", 0.5);
+                    SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHandScale", 2.5);
+                }
             }
         }
         
