@@ -688,6 +688,7 @@ Action BombKing(Handle timer)
     if (g_iBomgKingUserid != -1)    return Plugin_Continue;
 
     int client = GetRandomClient(true, VSH2Team_Red);
+    if (client < 1) return Plugin_Stop;
     g_iBomgKingUserid = GetClientUserId(client);
     g_fwdBomgKingTime.Update(25.0);
     EmitSoundToClient(client, "mvm/sentrybuster/mvm_sentrybuster_intro.wav");
@@ -714,7 +715,7 @@ Action HammerTime(Handle timer)
     {
         NecroMash_Call(target);
         SetHudTextParams(-1.0, 0.58, 3.0, 255, 0, 0, 255);
-        for(int i = 0; i <= MaxClients; i++)
+        for(int i = 1; i <= MaxClients; i++)
         {
             if (IsClientInGame(i) && IsPlayerAlive(i))
             {
