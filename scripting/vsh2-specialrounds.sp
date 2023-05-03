@@ -354,34 +354,11 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
     {
         case SRT_BigHead:
         {
-            int i;
-            for(i = 0; i < boss_count; i++)
-            {
-                SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHeadScale", 2.5);
-                SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHandScale", 0.5);
-            }
-            for(i = 0; i < red_count; i++)
-            {
-                SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHeadScale", 2.5);
-                SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHandScale", 0.5);
-            }
-
             CPrintToChatAll("{purple}[特殊回合]{default}头变大，手变小。");
         }
         
         case SRT_SmallHead:
         {
-            int i;
-            for(i = 0; i < boss_count; i++)
-            {
-                SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHeadScale", 0.5);
-                SetEntPropFloat(bosses[i].index, Prop_Send, "m_flHandScale", 2.5);
-            }
-            for(i = 0; i < red_count; i++)
-            {
-                TF2Attrib_SetByName(red_players[i].index, "head scale", 0.5);
-                TF2Attrib_SetByName(red_players[i].index, "hand scale", 2.5);
-            }
 
             CPrintToChatAll("{purple}[特殊回合]{default}手变小，头变大。");
         }
@@ -551,6 +528,7 @@ void VSR_OnBossThinkPost(VSH2Player player)
             {
                 for(i = 0; i < red_count; i++)
                 {
+                    if (red_players[i].index < 1)   continue;
                     SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHeadScale", 2.5);
                     SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHandScale", 0.5);
                 }
@@ -577,6 +555,7 @@ void VSR_OnBossThinkPost(VSH2Player player)
             {
                 for(i = 0; i < red_count; i++)
                 {
+                    if (red_players[i].index < 1)   continue;
                     SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHeadScale", 0.5);
                     SetEntPropFloat(red_players[i].index, Prop_Send, "m_flHandScale", 2.5);
                 }
