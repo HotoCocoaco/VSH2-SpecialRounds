@@ -36,6 +36,7 @@ enum SpecialRoundType
     SRT_TowerDefense,
     SRT_MannPower,
     SRT_Survival,
+    SRT_APose,
 
     SRT_MaxSRTCount
 };
@@ -303,6 +304,20 @@ Action ShowVSPRollText(Handle timer)
                     }
                 }
             }
+            
+            case SRT_APose:
+            {
+            	int len = g_cfgVSRConfig.GetSize("vsr.apose");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.apose", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
         }
         return Plugin_Stop;
     }
@@ -478,6 +493,13 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
             g_bSurvivalEnabled = true;
 
             CPrintToChatAll("{purple}[特殊回合]{default}BOSS的愤怒值会自行增加，红队生存指定时间之后即可胜利。");
+        }
+        
+        case SRT_APose:
+        {
+        	SetPawnTimer(SetEveryoneAPose, 10.0);
+        	
+        	CPrintToChatAll("{purple}[特殊回合]{default}所有人都尝试做APose。");
         }
     }
 }
@@ -663,6 +685,19 @@ void VSR_OnSoundHook(const VSH2Player player, char sample[PLATFORM_MAX_PATH], in
             }
         }
     }
+}
+
+void SetEveryoneAPose()
+{
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		if (IsClientInGame(i) && IsPlayerAlive(i) && GetClientTeam(i) == VSH2Team_Red)
+		{
+			SetVariantString("");
+			AcceptEntityInput(i, "SetCustomModel");
+			SetEntProp(i, Prop_Send, "m_bUseClassAnimations", 0);
+		}
+	}
 }
 
 // 用于检测当前是否有终结者在场。
