@@ -369,9 +369,9 @@ void VSR_OnShowStats(const VSH2Player top_players[3])
             FindConVar("tf_grapplinghook_enable").SetInt(0);
 
             int ent = -1;
-            while( (ent = FindEntityByClassname(ent, "tf_weapon_grapplinghook")) > MaxClients )
+            while( (ent = FindEntityByClassname(ent, "tf_weapon_grapplinghook")) != -1 )
             {
-                if (IsValidEdict(ent))
+                if (ent > MaxClients && IsValidEdict(ent))
                 {
                     RemoveEntity(ent);
                 }
