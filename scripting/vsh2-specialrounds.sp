@@ -37,6 +37,7 @@ enum SpecialRoundType
     SRT_MannPower,
     SRT_Survival,
     SRT_APose,
+    SRT_DejaVu,
 
     SRT_MaxSRTCount
 };
@@ -101,7 +102,7 @@ public void OnLibraryAdded(const char[] name)
             return;
         }
         
-        VSH2_Hook(OnRoundEndInfo, VSR_OnRoundEndInfo);
+        VSH2_Hook(OnShowStats, VSR_OnShowStats);
         VSH2_Hook(OnRoundStart, VSR_OnRoundStart);
         VSH2_Hook(OnCallDownloads, VSR_OnCallDownloads);
         VSH2_Hook(OnTraceAttack, VSR_OnTraceAttack);
@@ -115,7 +116,7 @@ public void OnLibraryRemoved(const char[] name)
 {
     if (StrEqual(name, "VSH2"))
     {
-        VSH2_Unhook(OnRoundEndInfo, VSR_OnRoundEndInfo);
+        VSH2_Unhook(OnShowStats, VSR_OnShowStats);
         VSH2_Unhook(OnRoundStart, VSR_OnRoundStart);
         VSH2_Unhook(OnCallDownloads, VSR_OnCallDownloads);
         VSH2_Unhook(OnTraceAttack, VSR_OnTraceAttack);
@@ -318,6 +319,20 @@ Action ShowVSPRollText(Handle timer)
                     }
                 }
             }
+
+            case SRT_DejaVu:
+            {
+                int len = g_cfgVSRConfig.GetSize("vsr.dejavu");
+                char[] str = new char[len];
+                if ( g_cfgVSRConfig.Get("vsr.dejavu", str, len) )
+                {
+                    for(int i = 1; i <= MaxClients; i++)
+                    {
+                        if (IsClientInGame(i))
+                            ShowSyncHudText(i, g_hHUDText, "%s", str);
+                    }
+                }
+            }
         }
         return Plugin_Stop;
     }
@@ -344,7 +359,7 @@ Action ShowVSPRollText(Handle timer)
     return Plugin_Continue;
 }
 
-void VSR_OnRoundEndInfo(const VSH2Player player, bool bossBool, char message[MAXMESSAGE])
+void VSR_OnShowStats(const VSH2Player top_players[3])
 {
     switch(g_VSPState)
     {
@@ -352,6 +367,15 @@ void VSR_OnRoundEndInfo(const VSH2Player player, bool bossBool, char message[MAX
         {
             GameRules_SetProp("m_bPowerupMode", 0);
             FindConVar("tf_grapplinghook_enable").SetInt(0);
+
+            int ent = -1
+            while( (ent = FindEntityByClassname(ent, "tf_weapon_grapplinghook")) > MaxClients )
+            {
+                if (IsValidEdict(ent))
+                {
+                    RemoveEntity(ent);
+                }
+            }
         }
 
         case SRT_Survival:
@@ -500,6 +524,21 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
         	SetPawnTimer(SetEveryoneAPose, 10.0);
         	
         	CPrintToChatAll("{purple}[特殊回合]{default}所有人都尝试做APose。");
+        }
+
+        case SRT_DejaVu:
+        {
+            int i;
+            for(i = 0; i < boss_count; i++)
+            {
+                bosses[i].AddTempAttrib(1002, 2.0, 180.0);
+            }
+            for(i = 0; i < red_count; i++)
+            {
+                red_players[i].AddTempAttrib(1002, 2.0, 180.0);
+            }
+
+            CPrintToChatAll("{purple}[特殊回合]{default}所有人都跑得更快。");
         }
     }
 }
