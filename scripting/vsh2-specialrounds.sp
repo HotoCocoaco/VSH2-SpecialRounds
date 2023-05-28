@@ -368,7 +368,7 @@ void VSR_OnShowStats(const VSH2Player top_players[3])
             GameRules_SetProp("m_bPowerupMode", 0);
             FindConVar("tf_grapplinghook_enable").SetInt(0);
 
-            int ent = -1
+            int ent = -1;
             while( (ent = FindEntityByClassname(ent, "tf_weapon_grapplinghook")) > MaxClients )
             {
                 if (IsValidEdict(ent))
