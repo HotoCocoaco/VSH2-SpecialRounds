@@ -371,9 +371,14 @@ void VSR_OnShowStats(const VSH2Player top_players[3])
             int ent = -1;
             while( (ent = FindEntityByClassname(ent, "tf_weapon_grapplinghook")) != -1 )
             {
-                if (ent > MaxClients && IsValidEdict(ent))
+                if (ent > MaxClients && IsValidEntity(ent))
                 {
-                    RemoveEntity(ent);
+                    int owner = GetEntPropEnt(ent, Prop_Data, "m_hOwnerEntity");
+                    if (owner > 0 && owner <= MaxClients && IsClientInGame(owner))
+                    {
+                        RemovePlayerItem(owner, ent);
+                    }
+                    AcceptEntityInput(ent, "Kill");
                 }
             }
         }
