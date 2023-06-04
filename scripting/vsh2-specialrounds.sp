@@ -442,8 +442,7 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
 
         case SRT_Jesus:
         {
-            int theone = GetRandomInt(0, red_count);
-            int client = red_players[theone].index;
+            int client = GetRandomClient(true, VSH2Team_Red);
             TF2_AddCondition(client, TFCond_UberchargedCanteen, 180.0, client);
             TF2_AddCondition(client, TFCond_CritCanteen, 180.0, client);
 
