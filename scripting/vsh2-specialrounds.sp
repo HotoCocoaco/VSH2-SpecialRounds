@@ -36,7 +36,7 @@ enum SpecialRoundType
     SRT_TowerDefense,
     SRT_MannPower,
     SRT_Survival,
-    SRT_APose,
+    SRT_TargetMode,
     SRT_DejaVu,
 
     SRT_MaxSRTCount
@@ -51,6 +51,20 @@ bool g_bSurvivalEnabled;
 
 #include "vsr/dome.sp"
 #include "vsr/mannpower.sp"
+
+char g_sTargetPlayerModel[][] = 
+{
+    "", // for TFClass_Unknown
+    "models/props_training/target_scout.mdl",
+    "models/props_training/target_sniper.mdl",
+    "models/props_training/target_soldier.mdl",
+    "models/props_training/target_demoman.mdl",
+    "models/props_training/target_medic.mdl",
+    "models/props_training/target_heavy.mdl",
+    "models/props_training/target_pyro.mdl",
+    "models/props_training/target_spy.mdl",    
+    "models/props_training/target_engineer.mdl"
+};
 
 public void OnPluginStart()
 {
@@ -306,11 +320,11 @@ Action ShowVSPRollText(Handle timer)
                 }
             }
             
-            case SRT_APose:
+            case SRT_TargetMode:
             {
-            	int len = g_cfgVSRConfig.GetSize("vsr.apose");
+            	int len = g_cfgVSRConfig.GetSize("vsr.targetmode");
                 char[] str = new char[len];
-                if ( g_cfgVSRConfig.Get("vsr.apose", str, len) )
+                if ( g_cfgVSRConfig.Get("vsr.targetmode", str, len) )
                 {
                     for(int i = 1; i <= MaxClients; i++)
                     {
@@ -523,9 +537,9 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
             CPrintToChatAll("{purple}[特殊回合]{default}BOSS的愤怒值会自行增加，红队生存指定时间之后即可胜利。");
         }
         
-        case SRT_APose:
+        case SRT_TargetMode:
         {
-        	SetPawnTimer(SetEveryoneAPose, 10.0);
+        	SetPawnTimer(SetEveryoneTargetMode, 10.0);
         	
         	CPrintToChatAll("{purple}[特殊回合]{default}所有人都尝试做APose。");
         }
@@ -565,6 +579,11 @@ void VSR_OnCallDownloads()
     PrepareSound(VSR_ROLLSOUND);
 
     Dome_MapStart();
+
+    for(int i = 0; i < sizeof(g_sTargetPlayerModel); i++)
+    {
+        PrecacheModel(g_sTargetPlayerModel[i]);
+    }
 }
 
 void VSR_OnBossThinkPost(VSH2Player player)
@@ -730,13 +749,15 @@ void VSR_OnSoundHook(const VSH2Player player, char sample[PLATFORM_MAX_PATH], in
     }
 }
 
-void SetEveryoneAPose()
+void SetEveryoneTargetMode()
 {
 	for(int i = 1; i <= MaxClients; i++)
 	{
 		if (IsClientInGame(i) && IsPlayerAlive(i) && GetClientTeam(i) == VSH2Team_Red)
 		{
-			SetVariantString("");
+			char buffer[70];
+			FormatEx(buffer, sizeof(buffer), "%s", g_sTargetPlayerModel[view_as<int>(TF2_GetPlayerClass(i))]);
+			SetVariantString(buffer);
 			AcceptEntityInput(i, "SetCustomModel");
 			SetEntProp(i, Prop_Send, "m_bUseClassAnimations", 0);
 		}
