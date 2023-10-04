@@ -54,7 +54,7 @@ bool g_bSurvivalEnabled;
 
 char g_sTargetPlayerModel[][] = 
 {
-    "", // for TFClass_Unknown
+    "models/props_training/target_scout.mdl", // for TFClass_Unknown
     "models/props_training/target_scout.mdl",
     "models/props_training/target_sniper.mdl",
     "models/props_training/target_soldier.mdl",
