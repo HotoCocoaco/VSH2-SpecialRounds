@@ -460,12 +460,11 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
         }
 
         case SRT_Jesus:
-        {
+        {        
             int client = GetRandomClient(true, VSH2Team_Red);
-            TF2_AddCondition(client, TFCond_UberchargedCanteen, 180.0, client);
-            TF2_AddCondition(client, TFCond_CritCanteen, 180.0, client);
-
-            CPrintToChatAll("{purple}[特殊回合]{default}红队获得一个救世主，持续时间180秒。");
+            TF2_AddCondition(client, TFCond_KingAura);
+            TF2_AddCondition(client, TFCond_Ubercharged, 5.0);
+            CPrintToChatAll("{purple}[特殊回合]{default}红队获得一个救世主。他是 %N 。", client);
         }
 
         case SRT_Hammer:
