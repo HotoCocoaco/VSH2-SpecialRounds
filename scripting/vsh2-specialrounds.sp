@@ -116,7 +116,8 @@ public void OnLibraryAdded(const char[] name)
             return;
         }
         
-        VSH2_Hook(OnShowStats, VSR_OnShowStats);
+        //VSH2_Hook(OnShowStats, VSR_OnShowStats);
+        HookEvent("teamplay_round_win", VSR_OnRoundEnd);
         VSH2_Hook(OnRoundStart, VSR_OnRoundStart);
         VSH2_Hook(OnCallDownloads, VSR_OnCallDownloads);
         VSH2_Hook(OnTraceAttack, VSR_OnTraceAttack);
@@ -130,7 +131,8 @@ public void OnLibraryRemoved(const char[] name)
 {
     if (StrEqual(name, "VSH2"))
     {
-        VSH2_Unhook(OnShowStats, VSR_OnShowStats);
+        //VSH2_Unhook(OnShowStats, VSR_OnShowStats);
+        UnhookEvent("teamplay_round_win", VSR_OnRoundEnd);
         VSH2_Unhook(OnRoundStart, VSR_OnRoundStart);
         VSH2_Unhook(OnCallDownloads, VSR_OnCallDownloads);
         VSH2_Unhook(OnTraceAttack, VSR_OnTraceAttack);
@@ -373,7 +375,7 @@ Action ShowVSPRollText(Handle timer)
     return Plugin_Continue;
 }
 
-void VSR_OnShowStats(const VSH2Player top_players[3])
+void VSR_OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
     switch(g_VSPState)
     {
