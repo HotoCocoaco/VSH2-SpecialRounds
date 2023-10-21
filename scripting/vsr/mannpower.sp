@@ -86,7 +86,7 @@ stock RuneTypes GetRandRune()
 	int val;
 	do
 		val = GetRandomInt(0, 11);
-		while (val == 10 || val == 8);
+		while (val == 10 || val == 8 || val == 4 || val == 5);
 	return view_as< RuneTypes >(val);
 }
 
