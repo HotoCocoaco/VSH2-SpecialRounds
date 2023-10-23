@@ -381,7 +381,7 @@ void VSR_OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
     {
         case SRT_MannPower:
         {
-            GameRules_SetProp("m_bPowerupMode", 0);
+            /* GameRules_SetProp("m_bPowerupMode", 0);
             FindConVar("tf_grapplinghook_enable").SetInt(0);
 
             int ent = -1;
@@ -396,7 +396,7 @@ void VSR_OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
                     }
                     AcceptEntityInput(ent, "Kill");
                 }
-            }
+            } */
         }
 
         case SRT_Survival:
@@ -509,7 +509,7 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
 
         case SRT_MannPower:
         {
-            GameRules_SetProp("m_bPowerupMode", 1);
+            /* GameRules_SetProp("m_bPowerupMode", 1);
             FindConVar("tf_grapplinghook_enable").SetInt(1);
 
             int i;
@@ -525,7 +525,8 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
 
             MannPower_OnRoundStart();
 
-            CPrintToChatAll("{purple}[特殊回合]{default}获得钩爪，地图生成增益道具。注意，重生点内的增益道具无法捡起。");
+            CPrintToChatAll("{purple}[特殊回合]{default}获得钩爪，地图生成增益道具。注意，重生点内的增益道具无法捡起。"); */
+            CPrintToChatAll("{purple}[特殊回合]{default}此特殊回合已暂停。");
         }
 
         case SRT_Survival:
