@@ -509,8 +509,8 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
 
         case SRT_MannPower:
         {
-            FindConVar("tf_grapplinghook_enable").SetInt(1);
             GameRules_SetProp("m_bPowerupMode", 1);
+            FindConVar("tf_grapplinghook_enable").SetInt(1);
 
             int i;
             for(i = 0; i < boss_count; i++)
