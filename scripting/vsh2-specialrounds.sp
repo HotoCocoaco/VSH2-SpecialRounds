@@ -48,6 +48,8 @@ int g_iBomgKingUserid;
 FwdTime g_fwdBomgKingTime;
 FwdTime g_fwdSurvivalTime;
 bool g_bSurvivalEnabled;
+Handle g_hHammerTimmer;
+Handle g_hBombKingTimer;
 
 #include "vsr/dome.sp"
 #include "vsr/mannpower.sp"
@@ -403,6 +405,16 @@ void VSR_OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
         {
             g_bSurvivalEnabled = false;
         }
+
+        case SRT_Hammer:
+        {
+            delete g_hHammerTimmer;
+        }
+
+        case SRT_BombKing:
+        {
+            delete g_hBombKingTimer;
+        }
     }
     
     g_VSPState = SRT_Disabled;
@@ -471,7 +483,7 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
 
         case SRT_Hammer:
         {
-            CreateTimer(45.0, HammerTime, _, TIMER_REPEAT);
+            g_hHammerTimmer = CreateTimer(45.0, HammerTime, _, TIMER_REPEAT);
             CPrintToChatAll("{purple}[特殊回合]{default}每隔一段时间会有重锤落下。");
         }
 
@@ -483,7 +495,7 @@ void VSR_OnRoundStart(const VSH2Player[] bosses, const int boss_count, const VSH
         
         case SRT_BombKing:
         {
-            CreateTimer(5.0, BombKing, _, TIMER_REPEAT);
+            g_hBombKingTimer = CreateTimer(5.0, BombKing, _, TIMER_REPEAT);
             CPrintToChatAll("{purple}[特殊回合]{default}用近战攻击敌人或队友来转移炸弹。");
         }
 
@@ -785,7 +797,11 @@ bool IsZZJ()
 // 炸弹王计时器
 Action BombKing(Handle timer)
 {
-    if (VSH2GameMode.GetPropInt("iRoundState") != StateRunning) return Plugin_Stop;
+    if (VSH2GameMode.GetPropInt("iRoundState") != StateRunning)
+    {
+        g_hBombKingTimer = null;
+        return Plugin_Stop;
+    }
 
     if (g_iBomgKingUserid != -1)    return Plugin_Continue;
 
@@ -801,7 +817,11 @@ Action BombKing(Handle timer)
 // 锤子时间代码。Most codes yoink from Pelipoika & RTD2
 Action HammerTime(Handle timer)
 {
-    if (VSH2GameMode.GetPropInt("iRoundState") != StateRunning) return Plugin_Stop;
+    if (VSH2GameMode.GetPropInt("iRoundState") != StateRunning)
+    {
+        g_hHammerTimmer = null;
+        return Plugin_Stop;
+    }
 
     int target;
     if ( GetRandomBool() )
