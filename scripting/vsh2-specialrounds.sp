@@ -707,7 +707,7 @@ void VSR_OnBossThinkPost(VSH2Player player)
                     ForceTeamWin(VSH2Team_Red);
                     g_bSurvivalEnabled = false;
                 }   else    {
-                    player.SetPropFloat("flRAGE", player.GetPropFloat("flRAGE") + 0.02);
+                    player.SetPropFloat("flRAGE", player.GetPropFloat("flRAGE") + 0.5);
                 }
             }
         }
