@@ -52,7 +52,7 @@ Handle g_hHammerTimmer;
 Handle g_hBombKingTimer;
 
 #include "vsr/dome.sp"
-#include "vsr/mannpower.sp"
+//#include "vsr/mannpower.sp"
 
 char g_sTargetPlayerModel[][] = 
 {
@@ -73,7 +73,7 @@ public void OnPluginStart()
     g_convarSpecialRoundRate = CreateConVar("sm_vsr_rate", "0", "开始特殊回合所需的概率，x/100计算。");
     g_hHUDText = CreateHudSynchronizer();
     RegAdminCmd("sm_setvsp", SetVSPState, ADMFLAG_CHEATS, "ChangeVSPState");
-    MannPower_OnPluginStart();
+    //MannPower_OnPluginStart();
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
